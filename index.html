@@ -429,30 +429,11 @@
 <main>
 
   <!-- API Key Box -->
-  <div id="apiKeyBox">
-    <h3>🔑 Ravelry APIキーを設定しよう 🌸</h3>
-    <p>
-      <strong>Ravelry</strong>（世界最大の毛糸・編み物データベース）のAPIを使います。<br>
-      無料アカウントを作成して、APIキー（ユーザー名・パスワード）を取得してください。<br>
-      👉 <a href="https://www.ravelry.com/pro/developer" target="_blank">https://www.ravelry.com/pro/developer</a>
-      でアプリを作成し、<em>Basic Auth（read-only）</em>を選択してください。
-    </p>
-    <div class="key-row">
-      <input id="apiUser" type="text" placeholder="🔑 APIユーザー名" autocomplete="off" />
-      <input id="apiPass" type="password" placeholder="🔒 APIパスワード" autocomplete="off" />
-      <button id="saveKeyBtn">保存して検索 🌸</button>
-    </div>
     <p id="keyStatus"></p>
     <p style="font-size:.8rem; color:#aaa; margin-top:6px;">
       ※ キーはお使いのブラウザのローカルストレージにのみ保存されます。サーバーには送信されません。
     </p>
   </div>
-
-  <div id="demoNotice">
-    <strong>🎨 デモモードで表示中</strong> — Ravelry APIキーがまだ設定されていません。
-    サンプルデータを表示しています。上のフォームでAPIキーを設定すると、リアルタイムで世界中の毛糸データを取得できます！
-  </div>
-
   <div id="statusBar"></div>
   <div id="grid"></div>
   <div id="emptyState">
@@ -467,52 +448,264 @@
   <div class="modal-box" id="modalBox"></div>
 </div>
 
+
 <script>
-// ─────────────────────────────────────────────
-//  STATE
-// ─────────────────────────────────────────────
-let apiUser = localStorage.getItem('rv_user') || '';
-let apiPass = localStorage.getItem('rv_pass') || '';
-let currentQuery = 'wool';
+// ── STATE ──
+let currentQuery = 'all';
 let currentPage  = 1;
 let totalPages   = 1;
-let isLoading    = false;
+const PAGE_SIZE  = 12;
+const EMOJIS = ['🧶','🎀','✨','🪡','💫','🌈','🎨','🌸','🍬','🌺','🦋','🎵'];
 
-const COLORS = [
-  'var(--pink)','var(--teal)','var(--yellow)',
-  'var(--blue)','var(--purple)','var(--orange)'
+// ── YARN DATABASE ──
+const YARNS = [
+  { id:1,  name:'Cascade 220', brand:'Cascade Yarns', country:'🇺🇸 アメリカ',
+    weight:'Worsted', grams:100, yardage:200, rating:4.8, washable:false,
+    fibers:[{name:'ウール',pct:100}], tags:['wool'],
+    img:'https://images.ravelrycache.com/uploads/Cascade/29784/CY_220_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/cascade-yarns-cascade-220',
+    desc:'アメリカで最も人気のウール糸。発色が美しく、編みやすい定番ヤーン。' },
+  { id:2,  name:'Malabrigo Rios', brand:'Malabrigo', country:'🇺🇾 ウルグアイ',
+    weight:'Worsted', grams:100, yardage:192, rating:4.9, washable:true,
+    fibers:[{name:'メリノウール',pct:100}], tags:['wool','merino'],
+    img:'https://images.ravelrycache.com/uploads/Malabrigo/213682/DSC_0484_medium2.JPG',
+    url:'https://www.ravelry.com/yarns/library/malabrigo-rios',
+    desc:'ウルグアイ産の手染めメリノ。豊かな色合いと柔らかさで世界中で大人気。' },
+  { id:3,  name:'Berroco Ultra Wool', brand:'Berroco', country:'🇺🇸 アメリカ',
+    weight:'Worsted', grams:100, yardage:219, rating:4.7, washable:true,
+    fibers:[{name:'ウール',pct:100}], tags:['wool'],
+    img:'https://images.ravelrycache.com/uploads/Berroco/284751/5185_Zucchini_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/berroco-ultra-wool',
+    desc:'洗濯機で洗えるウール100%。丈夫でお手入れ簡単、初心者にも人気。' },
+  { id:4,  name:'Drops Nepal', brand:'Garnstudio Drops', country:'🇳🇴 ノルウェー',
+    weight:'Aran', grams:50, yardage:75, rating:4.5, washable:false,
+    fibers:[{name:'ウール',pct:65},{name:'アルパカ',pct:35}], tags:['wool','alpaca'],
+    img:'https://images.ravelrycache.com/uploads/DROPS/111620/drops_nepal_uni_colour_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/drops-nepal',
+    desc:'ノルウェー発のウール＆アルパカブレンド。温かくてコスパが高い人気糸。' },
+  { id:5,  name:'Rowan British Sheep Breeds DK', brand:'Rowan', country:'🇬🇧 イギリス',
+    weight:'DK', grams:100, yardage:208, rating:4.4, washable:false,
+    fibers:[{name:'ウール',pct:100}], tags:['wool'],
+    img:'https://images.ravelrycache.com/uploads/Rowan/246289/WEB_-_RYC001_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/rowan-british-sheep-breeds-dk',
+    desc:'英国産羊毛100%。産地・品種にこだわったサステナブルな一糸。' },
+  { id:6,  name:'Opal Uni 4-ply', brand:'Opal', country:'🇩🇪 ドイツ',
+    weight:'Fingering', grams:100, yardage:425, rating:4.6, washable:true,
+    fibers:[{name:'ウール',pct:75},{name:'ポリアミド',pct:25}], tags:['wool'],
+    img:'https://images.ravelrycache.com/uploads/Opal/54458/opal_uni_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/opal-uni-4-fach',
+    desc:'ドイツの人気靴下糸。耐久性バツグンで洗濯機OK。靴下編みの定番。' },
+  { id:7,  name:'Blue Sky Fibers Woolstok', brand:'Blue Sky Fibers', country:'🇺🇸 アメリカ',
+    weight:'Worsted', grams:50, yardage:123, rating:4.5, washable:false,
+    fibers:[{name:'ウール',pct:100}], tags:['wool'],
+    img:'https://images.ravelrycache.com/uploads/Blue-Sky-Fibers/261697/BSF_Woolstok_2307_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/blue-sky-fibers-woolstok',
+    desc:'ウルグアイ産ウールの上質DK〜Worsted糸。柔らかく発色豊か。' },
+  { id:8,  name:'Lana Grossa Cool Wool', brand:'Lana Grossa', country:'🇩🇪 ドイツ',
+    weight:'Fingering', grams:50, yardage:160, rating:4.5, washable:true,
+    fibers:[{name:'メリノウール',pct:100}], tags:['wool','merino'],
+    img:'https://images.ravelrycache.com/uploads/Lana-Grossa/56736/COOL_WOOL_2000_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/lana-grossa-cool-wool-2000',
+    desc:'ドイツの人気メリノ糸。洗濯機対応で繊細なニットに最適。' },
+  { id:9,  name:'Malabrigo Merino Worsted', brand:'Malabrigo', country:'🇺🇾 ウルグアイ',
+    weight:'Worsted', grams:100, yardage:210, rating:4.9, washable:false,
+    fibers:[{name:'メリノウール',pct:100}], tags:['merino','wool'],
+    img:'https://images.ravelrycache.com/uploads/Malabrigo/34252/DSC06269_medium2.JPG',
+    url:'https://www.ravelry.com/yarns/library/malabrigo-yarn-merino-worsted',
+    desc:'手染めの極上メリノ。色の深みと柔らかさはシリーズ随一。' },
+  { id:10, name:'Drops Merino Extra Fine', brand:'Garnstudio Drops', country:'🇳🇴 ノルウェー',
+    weight:'DK', grams:50, yardage:105, rating:4.6, washable:false,
+    fibers:[{name:'メリノウール',pct:100}], tags:['merino'],
+    img:'https://images.ravelrycache.com/uploads/DROPS/43019/drops_merino_extra_fine_uni_colour_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/drops-merino-extra-fine',
+    desc:'肌触り抜群のエクストラファインメリノ。リーズナブルで色展開も豊富。' },
+  { id:11, name:'Debbie Bliss Cashmerino Aran', brand:'Debbie Bliss', country:'🇬🇧 イギリス',
+    weight:'Aran', grams:50, yardage:90, rating:4.6, washable:true,
+    fibers:[{name:'メリノ',pct:55},{name:'カシミア',pct:12},{name:'マイクロファイバー',pct:33}], tags:['merino','cashmere'],
+    img:'https://images.ravelrycache.com/uploads/Debbie-Bliss/9259/db_cashmerino_aran_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/debbie-bliss-cashmerino-aran',
+    desc:'メリノ＋カシミア混紡の贅沢ヤーン。赤ちゃん用品にも人気の柔らかさ。' },
+  { id:12, name:'Filcolana Peruviana', brand:'Filcolana', country:'🇩🇰 デンマーク',
+    weight:'Fingering', grams:50, yardage:164, rating:4.7, washable:false,
+    fibers:[{name:'ウール',pct:100}], tags:['merino','wool'],
+    img:'https://images.ravelrycache.com/uploads/Filcolana/263143/Filcolana-Peruviana-816-medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/filcolana-peruviana',
+    desc:'デンマーク発の上質ペルー産ウール。繊細な編み地に仕上がる。' },
+  { id:13, name:'Drops Alpaca', brand:'Garnstudio Drops', country:'🇳🇴 ノルウェー',
+    weight:'Sport', grams:50, yardage:167, rating:4.7, washable:false,
+    fibers:[{name:'アルパカ',pct:100}], tags:['alpaca'],
+    img:'https://images.ravelrycache.com/uploads/DROPS/10297/drops_alpaca_uni_colour_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/drops-alpaca',
+    desc:'アルパカ100%のリーズナブルヤーン。軽くて温かく光沢が美しい。' },
+  { id:14, name:'Paintbox Yarns Simply Alpaca', brand:'Paintbox Yarns', country:'🇬🇧 イギリス',
+    weight:'DK', grams:50, yardage:100, rating:4.3, washable:false,
+    fibers:[{name:'アルパカ',pct:100}], tags:['alpaca'],
+    img:'https://images.ravelrycache.com/uploads/Paintbox-Yarns/318617/PBX_Simply_Alpaca_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/paintbox-yarns-simply-alpaca',
+    desc:'手頃な価格のアルパカ糸。初めてのアルパカにぴったり。' },
+  { id:15, name:'BC Garn Tundra', brand:'BC Garn', country:'🇩🇰 デンマーク',
+    weight:'Bulky', grams:100, yardage:100, rating:4.6, washable:false,
+    fibers:[{name:'アルパカ',pct:100}], tags:['alpaca'],
+    img:'https://images.ravelrycache.com/uploads/BC-Garn/198879/tundra_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/bc-garn-tundra',
+    desc:'ざっくり太めのアルパカ糸。極太でサクサク編めて超温かい冬の定番。' },
+  { id:16, name:'Lion Brand 24/7 Cotton', brand:'Lion Brand', country:'🇺🇸 アメリカ',
+    weight:'Worsted', grams:100, yardage:186, rating:4.3, washable:true,
+    fibers:[{name:'コットン',pct:100}], tags:['cotton'],
+    img:'https://images.ravelrycache.com/uploads/Lion-Brand-Yarn/215780/24-7_cotton_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/lion-brand-24-7-cotton',
+    desc:'コットン100%で洗濯機OK。夏物・キッチン用品・赤ちゃんグッズにぴったり。' },
+  { id:17, name:'Paintbox Yarns Cotton DK', brand:'Paintbox Yarns', country:'🇬🇧 イギリス',
+    weight:'DK', grams:50, yardage:125, rating:4.2, washable:true,
+    fibers:[{name:'コットン',pct:100}], tags:['cotton'],
+    img:'https://images.ravelrycache.com/uploads/Paintbox-Yarns/262477/PBX_Cotton_DK_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/paintbox-yarns-cotton-dk',
+    desc:'豊富なカラー展開のコットンDK。色が綺麗で初心者にも人気。' },
+  { id:18, name:'Drops Safran', brand:'Garnstudio Drops', country:'🇳🇴 ノルウェー',
+    weight:'Sport', grams:50, yardage:160, rating:4.4, washable:true,
+    fibers:[{name:'コットン',pct:100}], tags:['cotton'],
+    img:'https://images.ravelrycache.com/uploads/DROPS/10251/drops_safran_uni_colour_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/drops-safran',
+    desc:'ノルウェー発のコットン糸。さらっとした肌触りで夏アイテムに最適。' },
+  { id:19, name:'Rowan Cotton Glace', brand:'Rowan', country:'🇬🇧 イギリス',
+    weight:'Fingering', grams:50, yardage:115, rating:4.3, washable:true,
+    fibers:[{name:'コットン',pct:100}], tags:['cotton'],
+    img:'https://images.ravelrycache.com/uploads/Rowan/9349/cotton_glace_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/rowan-cotton-glace',
+    desc:'光沢のある細番手コットン。繊細なレース模様や夏のトップスに人気。' },
+  { id:20, name:'Rowan Kidsilk Haze', brand:'Rowan', country:'🇬🇧 イギリス',
+    weight:'Lace', grams:25, yardage:210, rating:4.5, washable:false,
+    fibers:[{name:'モヘア',pct:70},{name:'シルク',pct:30}], tags:['silk'],
+    img:'https://images.ravelrycache.com/uploads/Rowan/9378/kidsilk_haze_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/rowan-kidsilk-haze',
+    desc:'モヘア70%＋シルク30%の夢のような糸。ふわふわで光沢があり超人気。' },
+  { id:21, name:'Noro Silk Garden', brand:'Noro', country:'🇯🇵 日本',
+    weight:'Aran', grams:50, yardage:100, rating:4.4, washable:false,
+    fibers:[{name:'シルク',pct:45},{name:'キッドモヘア',pct:45},{name:'ラムウール',pct:10}], tags:['silk'],
+    img:'https://images.ravelrycache.com/uploads/Noro/15990/silk_garden_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/noro-silk-garden',
+    desc:'日本発の手染め風グラデーション糸。シルク混で個性的な編み地に。' },
+  { id:22, name:'Lang Yarns Cashmere Premium', brand:'Lang Yarns', country:'🇨🇭 スイス',
+    weight:'Fingering', grams:25, yardage:125, rating:4.8, washable:false,
+    fibers:[{name:'カシミア',pct:100}], tags:['cashmere'],
+    img:'https://images.ravelrycache.com/uploads/Lang-Yarns/211009/lang_cashmere_premium_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/lang-yarns-cashmere-premium',
+    desc:'スイス発のカシミア100%。言葉を失うほどの柔らかさ。特別な作品に。' },
+  { id:23, name:'Drops Kid-Silk', brand:'Garnstudio Drops', country:'🇳🇴 ノルウェー',
+    weight:'Lace', grams:25, yardage:200, rating:4.5, washable:false,
+    fibers:[{name:'キッドモヘア',pct:75},{name:'シルク',pct:25}], tags:['cashmere','silk'],
+    img:'https://images.ravelrycache.com/uploads/DROPS/18400/drops_kid-silk_uni_colour_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/drops-kid-silk',
+    desc:'キッドモヘア＋シルクの贅沢レース糸。ふわふわ感は最高級。' },
+  { id:24, name:'Drops Bomull-Lin', brand:'Garnstudio Drops', country:'🇳🇴 ノルウェー',
+    weight:'DK', grams:50, yardage:100, rating:4.3, washable:true,
+    fibers:[{name:'コットン',pct:53},{name:'リネン',pct:47}], tags:['linen','cotton'],
+    img:'https://images.ravelrycache.com/uploads/DROPS/44618/drops_bomull-lin_uni_colour_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/drops-bomull-lin',
+    desc:'コットン＋リネン混紡。さらっとした風合いで夏の小物に最適。' },
+  { id:25, name:'BC Garn Allino', brand:'BC Garn', country:'🇩🇰 デンマーク',
+    weight:'Sport', grams:100, yardage:280, rating:4.4, washable:true,
+    fibers:[{name:'コットン',pct:55},{name:'リネン',pct:45}], tags:['linen','cotton'],
+    img:'https://images.ravelrycache.com/uploads/BC-Garn/126271/allino_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/bc-garn-allino',
+    desc:'デンマーク発コットン＆リネン。爽やかな質感で夏のウェアに大人気。' },
+  { id:26, name:'Wollmeise Twin', brand:'Wollmeise', country:'🇩🇪 ドイツ',
+    weight:'Fingering', grams:150, yardage:560, rating:4.9, washable:true,
+    fibers:[{name:'ウール',pct:80},{name:'ポリアミド',pct:20}], tags:['wool'],
+    img:'https://images.ravelrycache.com/uploads/Wollmeise/134047/wollmeise_pure_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/wollmeise-twin',
+    desc:'ドイツ手染めヤーンの最高峰。鮮やかな発色でコレクター多数。' },
+  { id:27, name:'Noro Taiyo', brand:'Noro', country:'🇯🇵 日本',
+    weight:'DK', grams:100, yardage:200, rating:4.3, washable:true,
+    fibers:[{name:'コットン',pct:50},{name:'シルク',pct:17},{name:'ウール',pct:17}], tags:['silk','cotton','wool'],
+    img:'https://images.ravelrycache.com/uploads/Noro/15991/noro_taiyo_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/noro-taiyo',
+    desc:'野呂英作によるグラデーション混紡糸。太陽のような鮮やかな色変わりが魅力。' },
+  { id:28, name:'Scheepjes Stonewashed', brand:'Scheepjes', country:'🇳🇱 オランダ',
+    weight:'DK', grams:50, yardage:130, rating:4.7, washable:true,
+    fibers:[{name:'コットン',pct:78},{name:'アクリル',pct:22}], tags:['cotton'],
+    img:'https://images.ravelrycache.com/uploads/Scheepjes/183791/Scheepjes-Stonewashed-medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/scheepjes-stonewashed',
+    desc:'オランダ発の人気コットン糸。石洗いのようなマットな質感でアミグルミにも人気。' },
+  { id:29, name:'Madelinetosh Tosh Merino Light', brand:'Madelinetosh', country:'🇺🇸 アメリカ',
+    weight:'Fingering', grams:100, yardage:420, rating:4.8, washable:false,
+    fibers:[{name:'スーパーウォッシュメリノ',pct:100}], tags:['merino','wool'],
+    img:'https://images.ravelrycache.com/uploads/Madelinetosh/116703/madelinetosh_tosh_merino_light_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/madelinetosh-tosh-merino-light',
+    desc:'アメリカ手染めの最高峰。深みのある独自カラーはコレクター垂涎の的。' },
+  { id:30, name:'Schoppel Zauberball', brand:'Schoppel Wolle', country:'🇩🇪 ドイツ',
+    weight:'Fingering', grams:100, yardage:420, rating:4.8, washable:true,
+    fibers:[{name:'ウール',pct:75},{name:'ポリアミド',pct:25}], tags:['wool'],
+    img:'https://images.ravelrycache.com/uploads/Schoppel-Wolle/74451/zauberball_100_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/schoppel-wolle-zauberball',
+    desc:'魔法の玉という名のグラデーション糸。自然と変わる色が魔法のよう。' },
+  { id:31, name:'Paintbox Yarns Simply DK', brand:'Paintbox Yarns', country:'🇬🇧 イギリス',
+    weight:'DK', grams:100, yardage:276, rating:4.2, washable:true,
+    fibers:[{name:'アクリル',pct:100}], tags:['wool'],
+    img:'https://images.ravelrycache.com/uploads/Paintbox-Yarns/189975/Simply_DK_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/paintbox-yarns-simply-dk',
+    desc:'豊富なカラー50色以上！手頃な価格で子ども服やアミグルミに人気。' },
+  { id:32, name:'Filatura di Crosa Zara', brand:'Filatura di Crosa', country:'🇮🇹 イタリア',
+    weight:'Sport', grams:50, yardage:137, rating:4.7, washable:true,
+    fibers:[{name:'メリノウール',pct:100}], tags:['merino'],
+    img:'https://images.ravelrycache.com/uploads/Filatura-di-Crosa/9645/zara_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/filatura-di-crosa-zara',
+    desc:'イタリア産のスーパーウォッシュメリノ。肌触りが良くニットウェアの定番。' },
+  { id:33, name:'Habu Textiles Tsumugi Silk', brand:'Habu Textiles', country:'🇯🇵 日本',
+    weight:'Lace', grams:40, yardage:480, rating:4.6, washable:false,
+    fibers:[{name:'シルク',pct:100}], tags:['silk'],
+    img:'https://images.ravelrycache.com/uploads/Habu-Textiles/9696/habu_tsumugi_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/habu-textiles-a-1-tsumugi-silk',
+    desc:'日本伝統の紬シルク。素朴な光沢と独特の質感が魅力のシルク糸。' },
+  { id:34, name:'Cascade Alpaca Lace', brand:'Cascade Yarns', country:'🇺🇸 アメリカ',
+    weight:'Lace', grams:50, yardage:437, rating:4.5, washable:false,
+    fibers:[{name:'アルパカ',pct:100}], tags:['alpaca'],
+    img:'https://images.ravelrycache.com/uploads/Cascade/43581/alpaca_lace_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/cascade-yarns-alpaca-lace',
+    desc:'超極細アルパカレース糸。繊細なショールやレース編みに最適な一品。' },
+  { id:35, name:'Quince and Co. Sparrow', brand:'Quince & Co.', country:'🇺🇸 アメリカ',
+    weight:'Lace', grams:50, yardage:403, rating:4.5, washable:true,
+    fibers:[{name:'リネン',pct:100}], tags:['linen'],
+    img:'https://images.ravelrycache.com/uploads/Quince-amp-Co/115037/sparrow_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/quince-and-co-sparrow',
+    desc:'アメリカ産リネン100%。洗うほどに柔らかくなる天然素材の逸品。' },
+  { id:36, name:'Schachenmayr Merino Super Big', brand:'Schachenmayr', country:'🇩🇪 ドイツ',
+    weight:'Super Bulky', grams:100, yardage:100, rating:4.5, washable:true,
+    fibers:[{name:'ウール',pct:100}], tags:['wool','merino'],
+    img:'https://images.ravelrycache.com/uploads/Schachenmayr/271615/SMC_Merino_Super_Big_Color_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/schachenmayr-original-merino-super-big',
+    desc:'ドイツ発の極太メリノ糸。アームニットにも使えるゴージャスな太さ。' },
 ];
-const EMOJIS = ['🧶','🎀','✨','🪡','💫','🌈','🎨','🌸'];
 
-// ─────────────────────────────────────────────
-//  INIT
-// ─────────────────────────────────────────────
-document.getElementById('apiUser').value = apiUser;
-document.getElementById('apiPass').value = apiPass;
-
-document.getElementById('saveKeyBtn').onclick = () => {
-  apiUser = document.getElementById('apiUser').value.trim();
-  apiPass = document.getElementById('apiPass').value.trim();
-  if (!apiUser || !apiPass) {
-    document.getElementById('keyStatus').textContent = '❌ ユーザー名とパスワードを入力してください';
-    document.getElementById('keyStatus').style.color = 'var(--pink)';
-    return;
+// ── FILTER ──
+function filterYarns(query, page) {
+  let filtered = YARNS;
+  if (query && query !== 'all') {
+    const q = query.toLowerCase();
+    filtered = YARNS.filter(y =>
+      y.name.toLowerCase().includes(q) ||
+      y.brand.toLowerCase().includes(q) ||
+      y.country.includes(q) ||
+      y.fibers.some(f => f.name.toLowerCase().includes(q)) ||
+      y.tags.some(t => t.includes(q)) ||
+      y.desc.includes(q)
+    );
   }
-  localStorage.setItem('rv_user', apiUser);
-  localStorage.setItem('rv_pass', apiPass);
-  document.getElementById('keyStatus').textContent = '✅ 保存しました！';
-  document.getElementById('keyStatus').style.color = 'var(--teal)';
-  loadYarns(currentQuery, 1);
-};
+  const total = filtered.length;
+  const pages = Math.ceil(total / PAGE_SIZE) || 1;
+  const start = (page - 1) * PAGE_SIZE;
+  return { yarns: filtered.slice(start, start + PAGE_SIZE), total, pages };
+}
 
+// ── EVENTS ──
 document.getElementById('searchBtn').onclick = () => {
   const q = document.getElementById('searchInput').value.trim();
-  if (q) { clearChips(); search(q); }
+  clearChips();
+  search(q || 'all');
 };
 document.getElementById('searchInput').onkeydown = e => {
   if (e.key === 'Enter') document.getElementById('searchBtn').click();
 };
-
 document.querySelectorAll('.chip').forEach(c => {
   c.onclick = () => {
     clearChips();
@@ -521,123 +714,38 @@ document.querySelectorAll('.chip').forEach(c => {
     search(c.dataset.q);
   };
 });
-
-document.getElementById('loadMore').onclick = () => {
-  loadYarns(currentQuery, currentPage + 1, true);
-};
-
+document.getElementById('loadMore').onclick = () => showYarns(currentQuery, currentPage + 1, true);
 document.getElementById('modal').onclick = e => {
   if (e.target === document.getElementById('modal')) closeModal();
 };
+function clearChips() { document.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); }
+function search(q) { currentQuery = q; showYarns(q, 1); }
 
-function clearChips() {
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-}
-function search(q) {
-  currentQuery = q;
-  loadYarns(q, 1);
-}
-
-// ─────────────────────────────────────────────
-//  API CALL
-// ─────────────────────────────────────────────
-async function loadYarns(query, page = 1, append = false) {
-  if (isLoading) return;
-  isLoading = true;
-
+// ── SHOW ──
+function showYarns(query, page, append) {
+  page = page || 1; append = append || false;
   const grid = document.getElementById('grid');
   const status = document.getElementById('statusBar');
   const loadMoreBtn = document.getElementById('loadMore');
   const emptyState = document.getElementById('emptyState');
-
-  if (!append) {
-    grid.innerHTML = '';
-    emptyState.style.display = 'none';
-  }
-
-  // skeleton
-  const skels = 8;
-  const skelFrag = document.createDocumentFragment();
-  if (!append) {
-    for (let i = 0; i < skels; i++) {
-      const s = document.createElement('div');
-      s.className = 'skeleton-card';
-      s.innerHTML = `<div class="skel-img"></div><div class="skel-body">
-        <div class="skel-line w70"></div><div class="skel-line w50"></div></div>`;
-      skelFrag.appendChild(s);
-    }
-    grid.appendChild(skelFrag);
-  }
-  status.textContent = '読み込み中… 🧶';
-  loadMoreBtn.style.display = 'none';
-
-  if (!apiUser || !apiPass) {
-    // DEMO mode
-    if (!append) grid.innerHTML = '';
-    document.getElementById('demoNotice').style.display = 'block';
-    await sleep(400);
-    const demos = getDemoData(query, page);
-    renderCards(demos.yarns, append);
-    currentPage = page;
-    totalPages  = demos.pages;
-    status.textContent = `🎨 デモデータを表示中（${demos.yarns.length}件）`;
-    loadMoreBtn.style.display = currentPage < totalPages ? 'block' : 'none';
-    isLoading = false;
+  if (!append) { grid.innerHTML = ''; emptyState.style.display = 'none'; }
+  const result = filterYarns(query, page);
+  currentPage = page; totalPages = result.pages;
+  if (result.yarns.length === 0 && !append) {
+    emptyState.style.display = 'block';
+    status.textContent = '';
+    loadMoreBtn.style.display = 'none';
     return;
   }
-
-  document.getElementById('demoNotice').style.display = 'none';
-
-  try {
-    const headers = {
-      'Authorization': 'Basic ' + btoa(apiUser + ':' + apiPass)
-    };
-    const url = `https://api.ravelry.com/yarns/search.json?query=${encodeURIComponent(query)}&page=${page}&page_size=20&sort=best`;
-    const res = await fetch(url, { headers });
-
-    if (!append) grid.innerHTML = '';
-
-    if (res.status === 401) {
-      status.textContent = '❌ APIキーが正しくありません。確認してください。';
-      isLoading = false;
-      return;
-    }
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const data = await res.json();
-    const yarns = data.yarns || [];
-    const pag   = data.paginator || {};
-    currentPage = page;
-    totalPages  = Math.ceil((pag.results || yarns.length) / 20);
-
-    if (yarns.length === 0 && !append) {
-      emptyState.style.display = 'block';
-      status.textContent = '';
-    } else {
-      renderCards(yarns, append);
-      status.textContent = `${pag.results || yarns.length}件の毛糸が見つかりました ✨`;
-      loadMoreBtn.style.display = currentPage < totalPages ? 'block' : 'none';
-    }
-  } catch (err) {
-    if (!append) grid.innerHTML = '';
-    // fallback to demo
-    document.getElementById('demoNotice').style.display = 'block';
-    const demos = getDemoData(query, page);
-    renderCards(demos.yarns, append);
-    status.textContent = `⚠️ API接続エラー。デモデータを表示しています。`;
-    currentPage = page;
-    totalPages  = demos.pages;
-    loadMoreBtn.style.display = currentPage < totalPages ? 'block' : 'none';
-  }
-  isLoading = false;
+  renderCards(result.yarns, append);
+  status.textContent = result.total + '種類の毛糸が見つかったよ ✨';
+  loadMoreBtn.style.display = currentPage < totalPages ? 'block' : 'none';
 }
 
-// ─────────────────────────────────────────────
-//  RENDER
-// ─────────────────────────────────────────────
+// ── RENDER ──
 function renderCards(yarns, append) {
   const grid = document.getElementById('grid');
-  yarns.forEach((y, i) => {
+  yarns.forEach(function(y, i) {
     const card = buildCard(y, append ? grid.children.length + i : i);
     grid.appendChild(card);
   });
@@ -646,96 +754,59 @@ function renderCards(yarns, append) {
 function buildCard(y, idx) {
   const card = document.createElement('div');
   card.className = 'yarn-card';
-  card.style.animationDelay = `${(idx % 8) * 0.05}s`;
-
-  const photo  = y.first_photo;
-  const imgUrl = photo ? (photo.medium_url || photo.square_url || '') : '';
-  const brand  = (y.yarn_company_name || y.brand || '');
-  const name   = y.name || 'Unknown Yarn';
-  const weight = y.yarn_weight?.name || '';
-  const rating = y.rating_average ? (+y.rating_average).toFixed(1) : null;
-  const stars  = ratingStars(rating);
-  const fibers = getFibers(y);
-  const grams  = y.grams ? `${y.grams}g` : '';
-  const yardage= y.yardage ? `${y.yardage}m` : '';
-  const permalink = y.permalink || '';
-
-  const imgHtml = imgUrl
-    ? `<img class="card-img" src="${imgUrl}" alt="${name}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=card-img-placeholder>${randEmoji(idx)}</div>'">`
-    : `<div class="card-img-placeholder">${randEmoji(idx)}</div>`;
-
-  card.innerHTML = `
-    ${imgHtml}
-    <div class="card-body">
-      ${brand ? `<div class="card-brand">${escHtml(brand)}</div>` : ''}
-      <div class="card-name">${escHtml(name)}</div>
-      <div class="card-tags">
-        ${weight  ? `<span class="tag tag-weight">${escHtml(weight)}</span>` : ''}
-        ${fibers.slice(0,2).map(f => `<span class="tag tag-fiber">${escHtml(f)}</span>`).join('')}
-        ${y.machine_washable === 'yes' ? `<span class="tag tag-washable">洗濯機OK</span>` : ''}
-      </div>
-      <div class="card-detail">
-        ${grams   ? `重さ: <span>${grams}</span>　` : ''}
-        ${yardage ? `長さ: <span>${yardage}</span>` : ''}
-      </div>
-    </div>
-    <div class="card-footer">
-      <span class="stars">${stars}</span>
-      ${permalink ? `<a class="ravelry-link" href="https://www.ravelry.com/yarns/library/${permalink}" target="_blank" rel="noopener">Ravelry ↗</a>` : ''}
-    </div>`;
-
-  card.onclick = () => openModal(y);
+  card.style.animationDelay = (idx % 8) * 0.05 + 's';
+  const fibers = y.fibers.map(function(f){ return f.name + ' ' + f.pct + '%'; });
+  const stars = ratingStars(y.rating);
+  const imgHtml = y.img
+    ? '<img class="card-img" src="' + y.img + '" alt="' + escHtml(y.name) + '" loading="lazy" onerror="this.parentNode.innerHTML=\'<div class=card-img-placeholder>' + randEmoji(idx) + '</div>\'">'
+    : '<div class="card-img-placeholder">' + randEmoji(idx) + '</div>';
+  card.innerHTML = imgHtml +
+    '<div class="card-body">' +
+      '<div class="card-brand">' + escHtml(y.brand) + ' ' + y.country + '</div>' +
+      '<div class="card-name">' + escHtml(y.name) + '</div>' +
+      '<div class="card-tags">' +
+        '<span class="tag tag-weight">' + escHtml(y.weight) + '</span>' +
+        fibers.slice(0,2).map(function(f){ return '<span class="tag tag-fiber">' + escHtml(f) + '</span>'; }).join('') +
+        (y.washable ? '<span class="tag tag-washable">洗濯機OK</span>' : '') +
+      '</div>' +
+      '<div class="card-detail">重さ: <span>' + y.grams + 'g</span>　長さ: <span>' + y.yardage + 'm</span></div>' +
+    '</div>' +
+    '<div class="card-footer">' +
+      '<span class="stars">' + stars + '</span>' +
+      '<a class="ravelry-link" href="' + y.url + '" target="_blank" rel="noopener">Ravelry ↗</a>' +
+    '</div>';
+  card.onclick = function(e) { if (!e.target.classList.contains('ravelry-link')) openModal(y); };
   return card;
 }
 
-// ─────────────────────────────────────────────
-//  MODAL
-// ─────────────────────────────────────────────
+// ── MODAL ──
 function openModal(y) {
   const box = document.getElementById('modalBox');
-  const photo  = y.first_photo;
-  const imgUrl = photo ? (photo.medium_url || photo.square_url || '') : '';
-  const brand  = y.yarn_company_name || y.brand || '';
-  const name   = y.name || 'Unknown Yarn';
-  const weight = y.yarn_weight?.name || '—';
-  const fibers = getFibers(y);
-  const rating = y.rating_average ? (+y.rating_average).toFixed(1) : '—';
-  const grams  = y.grams   ? `${y.grams}g`   : '—';
-  const yardage= y.yardage ? `${y.yardage}m` : '—';
-  const permalink = y.permalink || '';
-  const notes  = y.notes_html || '';
-
-  const imgHtml = imgUrl
-    ? `<img class="modal-img" src="${imgUrl}" alt="${name}" onerror="this.outerHTML='<div class=modal-img-placeholder>🧶</div>'">`
-    : `<div class="modal-img-placeholder">🧶</div>`;
-
-  box.innerHTML = `
-    ${imgHtml}
-    <div class="modal-content">
-      ${brand ? `<div class="modal-brand">${escHtml(brand)}</div>` : ''}
-      <div class="modal-title">${escHtml(name)}</div>
-      <div class="modal-tags">
-        ${weight !== '—' ? `<span class="tag tag-weight">${escHtml(weight)}</span>` : ''}
-        ${fibers.map(f => `<span class="tag tag-fiber">${escHtml(f)}</span>`).join('')}
-        ${y.machine_washable === 'yes' ? `<span class="tag tag-washable">洗濯機OK</span>` : ''}
-      </div>
-      <div class="modal-grid">
-        <div class="modal-item"><label>重さ</label><value>${grams}</value></div>
-        <div class="modal-item"><label>長さ</label><value>${yardage}</value></div>
-        <div class="modal-item"><label>糸の太さ</label><value>${escHtml(weight)}</value></div>
-        <div class="modal-item"><label>評価</label><value>${rating !== '—' ? ratingStars(rating) + ' ' + rating : '—'}</value></div>
-        ${y.min_gauge ? `<div class="modal-item"><label>ゲージ</label><value>${y.min_gauge}〜${y.max_gauge || y.min_gauge}</value></div>` : ''}
-        ${y.min_needle_size?.[0]?.us ? `<div class="modal-item"><label>針のサイズ</label><value>US ${y.min_needle_size[0].us}</value></div>` : ''}
-      </div>
-      ${notes ? `<div class="modal-notes">${notes}</div>` : ''}
-      <div class="modal-actions">
-        ${permalink
-          ? `<a class="btn-ravelry" href="https://www.ravelry.com/yarns/library/${permalink}" target="_blank" rel="noopener">Ravelryで見る ↗</a>`
-          : ''}
-        <button class="btn-close" onclick="closeModal()">閉じる</button>
-      </div>
-    </div>`;
-
+  const fibers = y.fibers.map(function(f){ return f.name + ' ' + f.pct + '%'; });
+  const imgHtml = y.img
+    ? '<img class="modal-img" src="' + y.img + '" alt="' + escHtml(y.name) + '" onerror="this.outerHTML=\'<div class=modal-img-placeholder>🧶</div>\'">'
+    : '<div class="modal-img-placeholder">🧶</div>';
+  box.innerHTML = imgHtml +
+    '<div class="modal-content">' +
+      '<div class="modal-brand">' + escHtml(y.brand) + ' · ' + y.country + '</div>' +
+      '<div class="modal-title">' + escHtml(y.name) + '</div>' +
+      '<div class="modal-tags">' +
+        '<span class="tag tag-weight">' + escHtml(y.weight) + '</span>' +
+        fibers.map(function(f){ return '<span class="tag tag-fiber">' + escHtml(f) + '</span>'; }).join('') +
+        (y.washable ? '<span class="tag tag-washable">洗濯機OK</span>' : '') +
+      '</div>' +
+      '<div class="modal-grid">' +
+        '<div class="modal-item"><label>重さ</label><value>' + y.grams + 'g</value></div>' +
+        '<div class="modal-item"><label>長さ</label><value>' + y.yardage + 'm</value></div>' +
+        '<div class="modal-item"><label>糸の太さ</label><value>' + escHtml(y.weight) + '</value></div>' +
+        '<div class="modal-item"><label>評価</label><value>' + ratingStars(y.rating) + ' ' + y.rating + '</value></div>' +
+      '</div>' +
+      '<div class="modal-notes">' + escHtml(y.desc) + '</div>' +
+      '<div class="modal-actions">' +
+        '<a class="btn-ravelry" href="' + y.url + '" target="_blank" rel="noopener">Ravelryで見る ↗</a>' +
+        '<button class="btn-close" onclick="closeModal()">閉じる</button>' +
+      '</div>' +
+    '</div>';
   document.getElementById('modal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -744,79 +815,9 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 
-// ─────────────────────────────────────────────
-//  DEMO DATA (when no API key)
-// ─────────────────────────────────────────────
-function getDemoData(query, page) {
-  const base = [
-    { id:1, name:'Cascade 220', yarn_company_name:'Cascade Yarns', permalink:'cascade-yarns-cascade-220',
-      yarn_weight:{name:'Worsted'}, grams:100, yardage:200, rating_average:'4.8', machine_washable:'no',
-      yarn_fibers:[{fiber:{name:'Wool'},percentage:100}],
-      first_photo:{medium_url:'https://images.ravelrycache.com/uploads/Cascade/29784/CY_220.jpg'} },
-    { id:2, name:'Malabrigo Rios', yarn_company_name:'Malabrigo', permalink:'malabrigo-rios',
-      yarn_weight:{name:'Worsted'}, grams:100, yardage:192, rating_average:'4.9', machine_washable:'yes',
-      yarn_fibers:[{fiber:{name:'Merino Wool'},percentage:100}] },
-    { id:3, name:'Drops Alpaca', yarn_company_name:'Garnstudio Drops', permalink:'drops-alpaca',
-      yarn_weight:{name:'Sport'}, grams:50, yardage:167, rating_average:'4.7',
-      yarn_fibers:[{fiber:{name:'Alpaca'},percentage:65},{fiber:{name:'Wool'},percentage:35}] },
-    { id:4, name:'Rowan Kidsilk Haze', yarn_company_name:'Rowan', permalink:'rowan-kidsilk-haze',
-      yarn_weight:{name:'Lace'}, grams:25, yardage:210, rating_average:'4.5',
-      yarn_fibers:[{fiber:{name:'Mohair'},percentage:70},{fiber:{name:'Silk'},percentage:30}] },
-    { id:5, name:'Lion Brand Yarn 24/7 Cotton', yarn_company_name:'Lion Brand', permalink:'lion-brand-24-7-cotton',
-      yarn_weight:{name:'Worsted'}, grams:100, yardage:186, rating_average:'4.3', machine_washable:'yes',
-      yarn_fibers:[{fiber:{name:'Cotton'},percentage:100}] },
-    { id:6, name:'Debbie Bliss Cashmerino Aran', yarn_company_name:'Debbie Bliss', permalink:'debbie-bliss-cashmerino-aran',
-      yarn_weight:{name:'Aran'}, grams:50, yardage:90, rating_average:'4.6',
-      yarn_fibers:[{fiber:{name:'Merino'},percentage:55},{fiber:{name:'Microfibre'},percentage:33},{fiber:{name:'Cashmere'},percentage:12}] },
-    { id:7, name:'Noro Silk Garden', yarn_company_name:'Noro', permalink:'noro-silk-garden',
-      yarn_weight:{name:'Aran'}, grams:50, yardage:100, rating_average:'4.4',
-      yarn_fibers:[{fiber:{name:'Silk'},percentage:45},{fiber:{name:'Kid Mohair'},percentage:45},{fiber:{name:'Lambswool'},percentage:10}] },
-    { id:8, name:'Berroco Ultra Wool', yarn_company_name:'Berroco', permalink:'berroco-ultra-wool',
-      yarn_weight:{name:'Worsted'}, grams:100, yardage:219, rating_average:'4.7', machine_washable:'yes',
-      yarn_fibers:[{fiber:{name:'Wool'},percentage:100}] },
-    { id:9, name:'Blue Sky Fibers Woolstok', yarn_company_name:'Blue Sky Fibers', permalink:'blue-sky-fibers-woolstok',
-      yarn_weight:{name:'Worsted'}, grams:50, yardage:123, rating_average:'4.5',
-      yarn_fibers:[{fiber:{name:'Wool'},percentage:100}] },
-    { id:10, name:'Paintbox Yarns Simply DK', yarn_company_name:'Paintbox Yarns', permalink:'paintbox-yarns-simply-dk',
-      yarn_weight:{name:'DK'}, grams:100, yardage:276, rating_average:'4.2', machine_washable:'yes',
-      yarn_fibers:[{fiber:{name:'Acrylic'},percentage:100}] },
-    { id:11, name:'Opal Uni 4-ply', yarn_company_name:'Opal', permalink:'opal-uni-4-fach',
-      yarn_weight:{name:'Fingering'}, grams:100, yardage:425, rating_average:'4.6', machine_washable:'yes',
-      yarn_fibers:[{fiber:{name:'Wool'},percentage:75},{fiber:{name:'Polyamide'},percentage:25}] },
-    { id:12, name:'Lana Grossa Cool Wool 2000', yarn_company_name:'Lana Grossa', permalink:'lana-grossa-cool-wool-2000',
-      yarn_weight:{name:'Fingering'}, grams:50, yardage:160, rating_average:'4.5', machine_washable:'yes',
-      yarn_fibers:[{fiber:{name:'Merino Wool'},percentage:100}] },
-  ];
-
-  const filtered = query
-    ? base.filter(y => {
-        const ql = query.toLowerCase();
-        return y.name.toLowerCase().includes(ql)
-          || (y.yarn_company_name||'').toLowerCase().includes(ql)
-          || getFibers(y).some(f => f.toLowerCase().includes(ql));
-      })
-    : base;
-
-  const chunkSize = 8;
-  const start = (page-1) * chunkSize;
-  return {
-    yarns: filtered.slice(start, start + chunkSize),
-    pages: Math.ceil(filtered.length / chunkSize)
-  };
-}
-
-// ─────────────────────────────────────────────
-//  HELPERS
-// ─────────────────────────────────────────────
-function getFibers(y) {
-  if (!y.yarn_fibers || !y.yarn_fibers.length) return [];
-  return y.yarn_fibers
-    .filter(f => f.fiber && f.fiber.name)
-    .map(f => f.percentage ? `${f.fiber.name} ${f.percentage}%` : f.fiber.name);
-}
+// ── HELPERS ──
 function ratingStars(r) {
-  if (!r || r === '—') return '☆☆☆☆☆';
-  const n = Math.round(+r);
+  var n = Math.round(r);
   return '★'.repeat(n) + '☆'.repeat(5 - n);
 }
 function randEmoji(i) { return EMOJIS[i % EMOJIS.length]; }
@@ -824,17 +825,11 @@ function escHtml(s) {
   if (!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// ─────────────────────────────────────────────
-//  BOOT
-// ─────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+// ── BOOT ──
+document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('.chip[data-q="wool"]').classList.add('active');
-  if (apiUser && apiPass) {
-    document.getElementById('apiKeyBox').style.display = 'none';
-  }
-  loadYarns('wool', 1);
+  showYarns('wool', 1);
 });
 </script>
 </body>
