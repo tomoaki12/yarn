@@ -812,7 +812,7 @@ function buildCard(y, idx) {
   const fibers = y.fibers.map(function(f){ return f.name + ' ' + f.pct + '%'; });
   const stars = ratingStars(y.rating);
   const imgHtml = y.img
-    ? '<img class="card-img" src="' + y.img + '" alt="' + escHtml(y.name) + '" loading="lazy" onerror="this.parentNode.innerHTML=\'<div class=card-img-placeholder>' + randEmoji(idx) + '</div>\'">'
+    ? '<img class="card-img" src="' + y.img + '" alt="' + escHtml(y.name) + '" loading="lazy" onerror="this.outerHTML=\'<div class=card-img-placeholder>' + randEmoji(idx) + '</div>\'">'
     : '<div class="card-img-placeholder">' + randEmoji(idx) + '</div>';
   card.innerHTML = imgHtml +
     '<div class="card-body">' +
