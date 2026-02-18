@@ -393,8 +393,68 @@
       #grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; }
       .modal-grid { grid-template-columns: 1fr; }
     }
+    /* ── FILTER SECTIONS ── */
+    .filter-section {
+      max-width: 760px; margin: 0 auto;
+      padding: 8px 20px 0;
+    }
+    .filter-label {
+      font-size: .75rem; font-weight: 800;
+      color: var(--soft); text-transform: uppercase;
+      letter-spacing: 1px; margin-bottom: 6px;
+    }
+
+    /* ── VIEW TABS ── */
+    .view-tabs {
+      display: flex; gap: 10px;
+      max-width: 1200px; margin: 0 auto 16px;
+      padding: 0 4px;
+    }
+    .view-tab {
+      background: #fff; border: 2px solid var(--pink);
+      border-radius: 50px; padding: 8px 22px;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: .9rem; font-weight: 700;
+      color: var(--soft); cursor: pointer;
+      transition: all .18s;
+    }
+    .view-tab.active {
+      background: linear-gradient(135deg, var(--rose), var(--lavender));
+      border-color: transparent; color: #fff;
+      box-shadow: 0 3px 12px #f4a7b940;
+    }
+    .view-tab:hover:not(.active) { background: #fff0f8; }
+
+    /* ── HEART BUTTON ── */
+    .card-img-wrap { position: relative; }
+    .heart-btn {
+      position: absolute; top: 8px; right: 8px;
+      background: rgba(255,255,255,0.85);
+      border: none; border-radius: 50%;
+      width: 36px; height: 36px;
+      font-size: 1.1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform .2s, background .15s;
+      backdrop-filter: blur(4px);
+    }
+    .heart-btn:hover { transform: scale(1.2); background: #fff; }
+    .heart-btn.faved { background: #fff0f5; }
+
+    /* modal heart */
+    .modal-title-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+    .modal-title-row .modal-title { margin-bottom: 0; flex: 1; }
+    .modal-heart {
+      background: #fff0f5; border: 2px solid var(--pink);
+      border-radius: 50%; width: 44px; height: 44px; min-width: 44px;
+      font-size: 1.3rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .2s;
+    }
+    .modal-heart:hover { transform: scale(1.15); }
+    .modal-heart.faved { background: #fce4ec; }
+
   </style>
-</head>
 <body>
 
 <!-- HEADER -->
@@ -415,30 +475,66 @@
     <button id="searchBtn">さがす 🌸</button>
   </div>
 </div>
-<div class="chips">
-  <span class="chip" data-q="wool">🐑 ウール</span>
-  <span class="chip" data-q="merino">✨ メリノ</span>
-  <span class="chip" data-q="cotton">🌿 コットン</span>
-  <span class="chip" data-q="alpaca">🦙 アルパカ</span>
-  <span class="chip" data-q="silk">🕊️ シルク</span>
-  <span class="chip" data-q="linen">🌾 リネン</span>
-  <span class="chip" data-q="cashmere">👑 カシミア</span>
+
+<!-- 素材チップ -->
+<div class="filter-section">
+  <div class="filter-label">🧵 素材</div>
+  <div class="chips" id="materialChips">
+    <span class="chip" data-type="material" data-q="all">✨ すべて</span>
+    <span class="chip" data-type="material" data-q="wool">🐑 ウール</span>
+    <span class="chip" data-type="material" data-q="merino">✨ メリノ</span>
+    <span class="chip" data-type="material" data-q="cotton">🌿 コットン</span>
+    <span class="chip" data-type="material" data-q="alpaca">🦙 アルパカ</span>
+    <span class="chip" data-type="material" data-q="silk">🕊️ シルク</span>
+    <span class="chip" data-type="material" data-q="linen">🌾 リネン</span>
+    <span class="chip" data-type="material" data-q="cashmere">👑 カシミア</span>
+  </div>
+</div>
+
+<!-- 国フィルター -->
+<div class="filter-section">
+  <div class="filter-label">🌍 国</div>
+  <div class="chips" id="countryChips">
+    <span class="chip chip-country active" data-type="country" data-q="all">🌐 すべて</span>
+    <span class="chip chip-country" data-type="country" data-q="日本">🇯🇵 日本</span>
+    <span class="chip chip-country" data-type="country" data-q="アメリカ">🇺🇸 アメリカ</span>
+    <span class="chip chip-country" data-type="country" data-q="イギリス">🇬🇧 イギリス</span>
+    <span class="chip chip-country" data-type="country" data-q="ノルウェー">🇳🇴 ノルウェー</span>
+    <span class="chip chip-country" data-type="country" data-q="ドイツ">🇩🇪 ドイツ</span>
+    <span class="chip chip-country" data-type="country" data-q="デンマーク">🇩🇰 デンマーク</span>
+    <span class="chip chip-country" data-type="country" data-q="イタリア">🇮🇹 イタリア</span>
+    <span class="chip chip-country" data-type="country" data-q="スイス">🇨🇭 スイス</span>
+  </div>
+</div>
+
+<!-- 太さフィルター -->
+<div class="filter-section">
+  <div class="filter-label">⚖️ 太さ</div>
+  <div class="chips" id="weightChips">
+    <span class="chip chip-weight active" data-type="weight" data-q="all">すべて</span>
+    <span class="chip chip-weight" data-type="weight" data-q="Lace">🕸️ 極細（レース）</span>
+    <span class="chip chip-weight" data-type="weight" data-q="Fingering">🪡 細（ソックス）</span>
+    <span class="chip chip-weight" data-type="weight" data-q="Sport">🌸 中細</span>
+    <span class="chip chip-weight" data-type="weight" data-q="DK">🌷 並太（DK）</span>
+    <span class="chip chip-weight" data-type="weight" data-q="Worsted">🧶 中太</span>
+    <span class="chip chip-weight" data-type="weight" data-q="Aran">🌼 極太（アラン）</span>
+    <span class="chip chip-weight" data-type="weight" data-q="Bulky">🌺 超極太</span>
+  </div>
 </div>
 
 <!-- MAIN -->
 <main>
-
-  <!-- API Key Box -->
-    <p id="keyStatus"></p>
-    <p style="font-size:.8rem; color:#aaa; margin-top:6px;">
-      ※ キーはお使いのブラウザのローカルストレージにのみ保存されます。サーバーには送信されません。
-    </p>
+  <!-- お気に入りタブ -->
+  <div class="view-tabs">
+    <button class="view-tab active" id="tabAll" onclick="switchTab('all')">🧶 すべて</button>
+    <button class="view-tab" id="tabFav" onclick="switchTab('fav')">🩷 お気に入り <span id="favCount"></span></button>
   </div>
+
   <div id="statusBar"></div>
   <div id="grid"></div>
   <div id="emptyState">
     <span class="icon">🔍</span>
-    <p>毛糸が見つかりませんでした。別のキーワードを試してみて！</p>
+    <p id="emptyMsg">毛糸が見つかりませんでした。別のキーワードを試してみて！</p>
   </div>
   <button id="loadMore" style="display:none">もっとみる 🎀</button>
 </main>
@@ -448,14 +544,18 @@
   <div class="modal-box" id="modalBox"></div>
 </div>
 
-
 <script>
 // ── STATE ──
-let currentQuery = 'all';
-let currentPage  = 1;
-let totalPages   = 1;
-const PAGE_SIZE  = 12;
+let currentMaterial = 'all';
+let currentCountry  = 'all';
+let currentWeight   = 'all';
+let currentSearch   = '';
+let currentPage     = 1;
+let totalPages      = 1;
+let currentTab      = 'all'; // 'all' or 'fav'
+const PAGE_SIZE     = 12;
 const EMOJIS = ['🧶','🎀','✨','🪡','💫','🌈','🎨','🌸','🍬','🌺','🦋','🎵'];
+let favorites       = JSON.parse(localStorage.getItem('yarn_favs') || '[]');
 
 // ── YARN DATABASE ──
 const YARNS = [
@@ -583,8 +683,7 @@ const YARNS = [
     weight:'Aran', grams:50, yardage:100, rating:4.4, washable:false,
     fibers:[{name:'シルク',pct:45},{name:'キッドモヘア',pct:45},{name:'ラムウール',pct:10}], tags:['silk'],
     img:'https://images.ravelrycache.com/uploads/Noro/15990/silk_garden_medium2.jpg',
-    url:'https://eisakunoro.com/',
-    desc:'日本発の手染め風グラデーション糸。シルク混で個性的な編み地に。' },
+    url:'https://eisakunoro.com/', desc:'日本発の手染め風グラデーション糸。シルク混で個性的な編み地に。' },
   { id:22, name:'Lang Yarns Cashmere Premium', brand:'Lang Yarns', country:'🇨🇭 スイス',
     weight:'Fingering', grams:25, yardage:125, rating:4.8, washable:false,
     fibers:[{name:'カシミア',pct:100}], tags:['cashmere'],
@@ -619,8 +718,7 @@ const YARNS = [
     weight:'DK', grams:100, yardage:200, rating:4.3, washable:true,
     fibers:[{name:'コットン',pct:50},{name:'シルク',pct:17},{name:'ウール',pct:17}], tags:['silk','cotton','wool'],
     img:'https://images.ravelrycache.com/uploads/Noro/15991/noro_taiyo_medium2.jpg',
-    url:'https://eisakunoro.com/',
-    desc:'野呂英作によるグラデーション混紡糸。太陽のような鮮やかな色変わりが魅力。' },
+    url:'https://eisakunoro.com/', desc:'野呂英作によるグラデーション混紡糸。太陽のような鮮やかな色変わりが魅力。' },
   { id:28, name:'Scheepjes Stonewashed', brand:'Scheepjes', country:'🇳🇱 オランダ',
     weight:'DK', grams:50, yardage:130, rating:4.7, washable:true,
     fibers:[{name:'コットン',pct:78},{name:'アクリル',pct:22}], tags:['cotton'],
@@ -655,62 +753,7 @@ const YARNS = [
     weight:'Lace', grams:40, yardage:480, rating:4.6, washable:false,
     fibers:[{name:'シルク',pct:100}], tags:['silk'],
     img:'https://images.ravelrycache.com/uploads/Habu-Textiles/9696/habu_tsumugi_medium2.jpg',
-    url:'https://www.habutextiles.com/',
-    desc:'日本伝統の紬シルク。素朴な光沢と独特の質感が魅力のシルク糸。' },
-  { id:37, name:'ノロ くれよん', brand:'Noro', country:'🇯🇵 日本',
-    weight:'Worsted', grams:50, yardage:100, rating:4.5, washable:false,
-    fibers:[{name:'ウール',pct:100}], tags:['wool'],
-    img:'https://images.ravelrycache.com/uploads/Noro/15985/kureyon_medium2.jpg',
-    url:'https://eisakunoro.com/',
-    desc:'野呂英作の代表作。単色に見えて編むと生まれるグラデーションが世界中で愛される。' },
-  { id:38, name:'ノロ 糸（イト）', brand:'Noro', country:'🇯🇵 日本',
-    weight:'Fingering', grams:100, yardage:400, rating:4.6, washable:false,
-    fibers:[{name:'ウール',pct:70},{name:'シルク',pct:30}], tags:['wool','silk'],
-    img:'https://images.ravelrycache.com/uploads/Noro/188065/noro_ito_medium2.jpg',
-    url:'https://eisakunoro.com/',
-    desc:'ウール＋シルクの細番手グラデーション糸。繊細な編み地が楽しめる上品な一糸。' },
-  { id:39, name:'ノロ ちりめん', brand:'Noro', country:'🇯🇵 日本',
-    weight:'DK', grams:50, yardage:120, rating:4.4, washable:false,
-    fibers:[{name:'シルク',pct:60},{name:'ウール',pct:40}], tags:['silk','wool'],
-    img:'https://images.ravelrycache.com/uploads/Noro/207894/chirimen_medium2.jpg',
-    url:'https://eisakunoro.com/',
-    desc:'ちりめん調の凹凸感が独特。シルク60%でとろんとした光沢が美しいNoro糸。' },
-  { id:40, name:'スキー毛糸 メリノソフト', brand:'Ski Yarn（スキー毛糸）', country:'🇯🇵 日本',
-    weight:'DK', grams:40, yardage:96, rating:4.5, washable:true,
-    fibers:[{name:'メリノウール',pct:100}], tags:['merino','wool'],
-    img:'https://images.ravelrycache.com/uploads/Ski/9771/skimerino_medium2.jpg',
-    url:'https://www.yanagi-ya.jp/item_list/03109/',
-    desc:'日本のスキー毛糸のメリノ糸。国内編み物愛好家に長年愛される定番ブランド。' },
-  { id:41, name:'ダルマ ウールムース', brand:'Daruma（ダルマ）', country:'🇯🇵 日本',
-    weight:'Bulky', grams:40, yardage:56, rating:4.6, washable:false,
-    fibers:[{name:'ウール',pct:100}], tags:['wool'],
-    img:'https://images.ravelrycache.com/uploads/Daruma/207277/daruma_wool_mousse_medium2.jpg',
-    url:'https://daruma-ito.co.jp/',
-    desc:'ふわふわ感が特徴の日本発ダルマ糸。もこもこした質感でスヌードやマフラーに人気。' },
-  { id:42, name:'ダルマ 糸ごま', brand:'Daruma（ダルマ）', country:'🇯🇵 日本',
-    weight:'Fingering', grams:20, yardage:70, rating:4.4, washable:false,
-    fibers:[{name:'ウール',pct:65},{name:'シルク',pct:35}], tags:['wool','silk'],
-    img:'https://images.ravelrycache.com/uploads/Daruma/193567/itogoma_medium2.jpg',
-    url:'https://daruma-ito.co.jp/',
-    desc:'ゴマの名前を持つウール＋シルク混紡。繊細な光沢と柔らかさが特徴の日本糸。' },
-  { id:43, name:'リッチモア パーセント', brand:'Rich More（リッチモア）', country:'🇯🇵 日本',
-    weight:'Fingering', grams:40, yardage:160, rating:4.5, washable:true,
-    fibers:[{name:'スーパーウォッシュウール',pct:100}], tags:['wool','merino'],
-    img:'https://images.ravelrycache.com/uploads/Rich-More/9833/richmore_percent_medium2.jpg',
-    url:'http://hamanaka.jp/richmore',
-    desc:'日本リッチモアの靴下糸定番。豊富なカラー展開と耐久性で編み物ファンに大人気。' },
-  { id:44, name:'ハブ テキスタイルズ ウールクレープ', brand:'Habu Textiles', country:'🇯🇵 日本',
-    weight:'Lace', grams:100, yardage:340, rating:4.5, washable:false,
-    fibers:[{name:'ウール',pct:100}], tags:['wool'],
-    img:'https://images.ravelrycache.com/uploads/Habu-Textiles/9695/habu_wool_medium2.jpg',
-    url:'https://www.habutextiles.com/',
-    desc:'クレープ加工の細番手ウール。日本の職人技が光る独特の風合いが海外でも高評価。' },
-  { id:45, name:'ダルマ エアリーウールアルパカ', brand:'Daruma（ダルマ）', country:'🇯🇵 日本',
-    weight:'Worsted', grams:30, yardage:70, rating:4.7, washable:false,
-    fibers:[{name:'ウール',pct:60},{name:'アルパカ',pct:40}], tags:['wool','alpaca'],
-    img:'https://images.ravelrycache.com/uploads/Daruma/264089/daruma_airy_wool_alpaca_medium2.jpg',
-    url:'https://daruma-ito.co.jp/',
-    desc:'ダルマのウール＋アルパカ。軽くてふわっとした空気感が気持ちいい冬の人気糸。' },
+    url:'https://www.habutextiles.com/', desc:'日本伝統の紬シルク。素朴な光沢と独特の質感が魅力のシルク糸。' },
   { id:34, name:'Cascade Alpaca Lace', brand:'Cascade Yarns', country:'🇺🇸 アメリカ',
     weight:'Lace', grams:50, yardage:437, rating:4.5, washable:false,
     fibers:[{name:'アルパカ',pct:100}], tags:['alpaca'],
@@ -729,19 +772,102 @@ const YARNS = [
     img:'https://images.ravelrycache.com/uploads/Schachenmayr/271615/SMC_Merino_Super_Big_Color_medium2.jpg',
     url:'https://www.ravelry.com/yarns/library/schachenmayr-original-merino-super-big',
     desc:'ドイツ発の極太メリノ糸。アームニットにも使えるゴージャスな太さ。' },
+  { id:37, name:'ノロ くれよん', brand:'Noro', country:'🇯🇵 日本',
+    weight:'Worsted', grams:50, yardage:100, rating:4.5, washable:false,
+    fibers:[{name:'ウール',pct:100}], tags:['wool'],
+    img:'https://images.ravelrycache.com/uploads/Noro/15985/kureyon_medium2.jpg',
+    url:'https://eisakunoro.com/', desc:'野呂英作の代表作。編むほどに生まれるグラデーションが世界中で愛される。' },
+  { id:38, name:'ノロ 糸（イト）', brand:'Noro', country:'🇯🇵 日本',
+    weight:'Fingering', grams:100, yardage:400, rating:4.6, washable:false,
+    fibers:[{name:'ウール',pct:70},{name:'シルク',pct:30}], tags:['wool','silk'],
+    img:'https://images.ravelrycache.com/uploads/Noro/188065/noro_ito_medium2.jpg',
+    url:'https://eisakunoro.com/', desc:'ウール＋シルクの細番手グラデーション糸。繊細な編み地が楽しめる上品な一糸。' },
+  { id:39, name:'ノロ ちりめん', brand:'Noro', country:'🇯🇵 日本',
+    weight:'DK', grams:50, yardage:120, rating:4.4, washable:false,
+    fibers:[{name:'シルク',pct:60},{name:'ウール',pct:40}], tags:['silk','wool'],
+    img:'https://images.ravelrycache.com/uploads/Noro/207894/chirimen_medium2.jpg',
+    url:'https://eisakunoro.com/', desc:'ちりめん調の凹凸感が独特。シルク60%でとろんとした光沢が美しいNoro糸。' },
+  { id:40, name:'スキー毛糸 メリノソフト', brand:'Ski Yarn（スキー毛糸）', country:'🇯🇵 日本',
+    weight:'DK', grams:40, yardage:96, rating:4.5, washable:true,
+    fibers:[{name:'メリノウール',pct:100}], tags:['merino','wool'],
+    img:'https://images.ravelrycache.com/uploads/Ski/9771/skimerino_medium2.jpg',
+    url:'https://www.yanagi-ya.jp/item_list/03109/', desc:'日本のスキー毛糸のメリノ糸。国内編み物愛好家に長年愛される定番ブランド。' },
+  { id:41, name:'ダルマ ウールムース', brand:'Daruma（ダルマ）', country:'🇯🇵 日本',
+    weight:'Bulky', grams:40, yardage:56, rating:4.6, washable:false,
+    fibers:[{name:'ウール',pct:100}], tags:['wool'],
+    img:'https://images.ravelrycache.com/uploads/Daruma/207277/daruma_wool_mousse_medium2.jpg',
+    url:'https://daruma-ito.co.jp/', desc:'ふわふわ感が特徴の日本発ダルマ糸。もこもこした質感でスヌードやマフラーに人気。' },
+  { id:42, name:'ダルマ 糸ごま', brand:'Daruma（ダルマ）', country:'🇯🇵 日本',
+    weight:'Fingering', grams:20, yardage:70, rating:4.4, washable:false,
+    fibers:[{name:'ウール',pct:65},{name:'シルク',pct:35}], tags:['wool','silk'],
+    img:'https://images.ravelrycache.com/uploads/Daruma/193567/itogoma_medium2.jpg',
+    url:'https://daruma-ito.co.jp/', desc:'ゴマの名前を持つウール＋シルク混紡。繊細な光沢と柔らかさが特徴の日本糸。' },
+  { id:43, name:'リッチモア パーセント', brand:'Rich More（リッチモア）', country:'🇯🇵 日本',
+    weight:'Fingering', grams:40, yardage:160, rating:4.5, washable:true,
+    fibers:[{name:'スーパーウォッシュウール',pct:100}], tags:['wool','merino'],
+    img:'https://images.ravelrycache.com/uploads/Rich-More/9833/richmore_percent_medium2.jpg',
+    url:'http://hamanaka.jp/richmore', desc:'日本リッチモアの靴下糸定番。豊富なカラー展開と耐久性で編み物ファンに大人気。' },
+  { id:44, name:'ハブ テキスタイルズ ウールクレープ', brand:'Habu Textiles', country:'🇯🇵 日本',
+    weight:'Lace', grams:100, yardage:340, rating:4.5, washable:false,
+    fibers:[{name:'ウール',pct:100}], tags:['wool'],
+    img:'https://images.ravelrycache.com/uploads/Habu-Textiles/9695/habu_wool_medium2.jpg',
+    url:'https://www.habutextiles.com/', desc:'クレープ加工の細番手ウール。日本の職人技が光る独特の風合いが海外でも高評価。' },
+  { id:45, name:'ダルマ エアリーウールアルパカ', brand:'Daruma（ダルマ）', country:'🇯🇵 日本',
+    weight:'Worsted', grams:30, yardage:70, rating:4.7, washable:false,
+    fibers:[{name:'ウール',pct:60},{name:'アルパカ',pct:40}], tags:['wool','alpaca'],
+    img:'https://images.ravelrycache.com/uploads/Daruma/264089/daruma_airy_wool_alpaca_medium2.jpg',
+    url:'https://daruma-ito.co.jp/', desc:'ダルマのウール＋アルパカ。軽くてふわっとした空気感が気持ちいい冬の人気糸。' },
+  // 追加糸
+  { id:46, name:'Drops Flora', brand:'Garnstudio Drops', country:'🇳🇴 ノルウェー',
+    weight:'Sport', grams:50, yardage:210, rating:4.5, washable:false,
+    fibers:[{name:'ウール',pct:65},{name:'アルパカ',pct:35}], tags:['wool','alpaca'],
+    img:'https://images.ravelrycache.com/uploads/DROPS/130441/drops_flora_uni_colour_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/drops-flora',
+    desc:'ウール＆アルパカのスポートウェイト。軽やかで肌触りよく編みやすい万能糸。' },
+  { id:47, name:'Rowan Felted Tweed DK', brand:'Rowan', country:'🇬🇧 イギリス',
+    weight:'DK', grams:50, yardage:175, rating:4.7, washable:false,
+    fibers:[{name:'メリノウール',pct:50},{name:'アルパカ',pct:25},{name:'ビスコーシュ',pct:25}], tags:['wool','alpaca','merino'],
+    img:'https://images.ravelrycache.com/uploads/Rowan/9386/felted_tweed_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/rowan-felted-tweed',
+    desc:'英国ローワンの名作ツイード糸。メリノ＋アルパカ＋ビスコースの絶妙ブレンド。' },
+  { id:48, name:'Malabrigo Mechita', brand:'Malabrigo', country:'🇺🇾 ウルグアイ',
+    weight:'Fingering', grams:100, yardage:400, rating:4.9, washable:false,
+    fibers:[{name:'スーパーウォッシュメリノ',pct:100}], tags:['merino','wool'],
+    img:'https://images.ravelrycache.com/uploads/Malabrigo/165082/mechita_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/malabrigo-mechita',
+    desc:'Malabrigoの細番手手染め糸。靴下やショールに最適な夢のようなメリノ。' },
+  { id:49, name:'Scheepjes Whirl', brand:'Scheepjes', country:'🇳🇱 オランダ',
+    weight:'Fingering', grams:215, yardage:1000, rating:4.8, washable:true,
+    fibers:[{name:'コットン',pct:60},{name:'アクリル',pct:40}], tags:['cotton'],
+    img:'https://images.ravelrycache.com/uploads/Scheepjes/232963/whirl_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/scheepjes-whirl',
+    desc:'大玉グラデーション糸。1玉でショール1枚分！渦巻き模様のカラーが人気。' },
+  { id:50, name:'West Yorkshire Spinners Signature 4ply', brand:'West Yorkshire Spinners', country:'🇬🇧 イギリス',
+    weight:'Fingering', grams:100, yardage:400, rating:4.7, washable:true,
+    fibers:[{name:'ウール',pct:75},{name:'ナイロン',pct:25}], tags:['wool'],
+    img:'https://images.ravelrycache.com/uploads/West-Yorkshire-Spinners/265034/WYS_Signature_4ply_medium2.jpg',
+    url:'https://www.ravelry.com/yarns/library/west-yorkshire-spinners-signature-4-ply',
+    desc:'英国発の靴下糸。丈夫で色鮮やか、豊富なコレクションラインが揃う人気ブランド。' },
 ];
 
 // ── FILTER ──
-function filterYarns(query, page) {
+function filterYarns(materialQ, countryQ, weightQ, searchQ, page) {
   let filtered = YARNS;
-  if (query && query !== 'all') {
-    const q = query.toLowerCase();
-    filtered = YARNS.filter(y =>
+  if (materialQ && materialQ !== 'all') {
+    filtered = filtered.filter(y => y.tags.some(t => t.includes(materialQ)));
+  }
+  if (countryQ && countryQ !== 'all') {
+    filtered = filtered.filter(y => y.country.includes(countryQ));
+  }
+  if (weightQ && weightQ !== 'all') {
+    filtered = filtered.filter(y => y.weight.includes(weightQ));
+  }
+  if (searchQ) {
+    const q = searchQ.toLowerCase();
+    filtered = filtered.filter(y =>
       y.name.toLowerCase().includes(q) ||
       y.brand.toLowerCase().includes(q) ||
-      y.country.includes(q) ||
       y.fibers.some(f => f.name.toLowerCase().includes(q)) ||
-      y.tags.some(t => t.includes(q)) ||
       y.desc.includes(q)
     );
   }
@@ -751,48 +877,119 @@ function filterYarns(query, page) {
   return { yarns: filtered.slice(start, start + PAGE_SIZE), total, pages };
 }
 
+// ── FAVORITES ──
+function isFav(id) { return favorites.includes(id); }
+function toggleFav(id) {
+  if (isFav(id)) {
+    favorites = favorites.filter(f => f !== id);
+  } else {
+    favorites.push(id);
+  }
+  localStorage.setItem('yarn_favs', JSON.stringify(favorites));
+  updateFavCount();
+  // re-render heart on all visible cards
+  document.querySelectorAll('.heart-btn').forEach(btn => {
+    const cid = parseInt(btn.dataset.id);
+    btn.textContent = isFav(cid) ? '🩷' : '🤍';
+    btn.classList.toggle('faved', isFav(cid));
+  });
+  // if in fav tab, refresh
+  if (currentTab === 'fav') showYarns(1, false);
+}
+function updateFavCount() {
+  const el = document.getElementById('favCount');
+  el.textContent = favorites.length > 0 ? '(' + favorites.length + ')' : '';
+}
+
+// ── TAB SWITCH ──
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabAll').classList.toggle('active', tab === 'all');
+  document.getElementById('tabFav').classList.toggle('active', tab === 'fav');
+  currentPage = 1;
+  showYarns(1, false);
+}
+
 // ── EVENTS ──
 document.getElementById('searchBtn').onclick = () => {
-  const q = document.getElementById('searchInput').value.trim();
-  clearChips();
-  search(q || 'all');
+  currentSearch = document.getElementById('searchInput').value.trim();
+  currentPage = 1;
+  showYarns(1, false);
 };
 document.getElementById('searchInput').onkeydown = e => {
   if (e.key === 'Enter') document.getElementById('searchBtn').click();
 };
-document.querySelectorAll('.chip').forEach(c => {
+document.querySelectorAll('.chip[data-type="material"]').forEach(c => {
   c.onclick = () => {
-    clearChips();
+    document.querySelectorAll('.chip[data-type="material"]').forEach(x => x.classList.remove('active'));
     c.classList.add('active');
-    document.getElementById('searchInput').value = '';
-    search(c.dataset.q);
+    currentMaterial = c.dataset.q;
+    currentPage = 1;
+    showYarns(1, false);
   };
 });
-document.getElementById('loadMore').onclick = () => showYarns(currentQuery, currentPage + 1, true);
+document.querySelectorAll('.chip[data-type="country"]').forEach(c => {
+  c.onclick = () => {
+    document.querySelectorAll('.chip[data-type="country"]').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    currentCountry = c.dataset.q;
+    currentPage = 1;
+    showYarns(1, false);
+  };
+});
+document.querySelectorAll('.chip[data-type="weight"]').forEach(c => {
+  c.onclick = () => {
+    document.querySelectorAll('.chip[data-type="weight"]').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    currentWeight = c.dataset.q;
+    currentPage = 1;
+    showYarns(1, false);
+  };
+});
+document.getElementById('loadMore').onclick = () => showYarns(currentPage + 1, true);
 document.getElementById('modal').onclick = e => {
   if (e.target === document.getElementById('modal')) closeModal();
 };
-function clearChips() { document.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); }
-function search(q) { currentQuery = q; showYarns(q, 1); }
 
 // ── SHOW ──
-function showYarns(query, page, append) {
+function showYarns(page, append) {
   page = page || 1; append = append || false;
   const grid = document.getElementById('grid');
   const status = document.getElementById('statusBar');
   const loadMoreBtn = document.getElementById('loadMore');
   const emptyState = document.getElementById('emptyState');
+  const emptyMsg = document.getElementById('emptyMsg');
   if (!append) { grid.innerHTML = ''; emptyState.style.display = 'none'; }
-  const result = filterYarns(query, page);
-  currentPage = page; totalPages = result.pages;
-  if (result.yarns.length === 0 && !append) {
-    emptyState.style.display = 'block';
-    status.textContent = '';
-    loadMoreBtn.style.display = 'none';
-    return;
+
+  let yarnsToShow;
+  if (currentTab === 'fav') {
+    const favYarns = YARNS.filter(y => isFav(y.id));
+    const total = favYarns.length;
+    const pages = Math.ceil(total / PAGE_SIZE) || 1;
+    const start = (page - 1) * PAGE_SIZE;
+    yarnsToShow = { yarns: favYarns.slice(start, start + PAGE_SIZE), total, pages };
+    if (total === 0) {
+      emptyMsg.textContent = 'まだお気に入りがありません。🤍 を押して追加しよう！';
+      emptyState.style.display = 'block';
+      status.textContent = '';
+      loadMoreBtn.style.display = 'none';
+      return;
+    }
+  } else {
+    yarnsToShow = filterYarns(currentMaterial, currentCountry, currentWeight, currentSearch, page);
+    if (yarnsToShow.yarns.length === 0 && !append) {
+      emptyMsg.textContent = '毛糸が見つかりませんでした。別のキーワードを試してみて！';
+      emptyState.style.display = 'block';
+      status.textContent = '';
+      loadMoreBtn.style.display = 'none';
+      return;
+    }
   }
-  renderCards(result.yarns, append);
-  status.textContent = result.total + '種類の毛糸が見つかったよ ✨';
+
+  currentPage = page;
+  totalPages = yarnsToShow.pages;
+  renderCards(yarnsToShow.yarns, append);
+  status.textContent = yarnsToShow.total + '種類の毛糸が見つかったよ ✨';
   loadMoreBtn.style.display = currentPage < totalPages ? 'block' : 'none';
 }
 
@@ -811,10 +1008,15 @@ function buildCard(y, idx) {
   card.style.animationDelay = (idx % 8) * 0.05 + 's';
   const fibers = y.fibers.map(function(f){ return f.name + ' ' + f.pct + '%'; });
   const stars = ratingStars(y.rating);
+  const faved = isFav(y.id);
   const imgHtml = y.img
     ? '<img class="card-img" src="' + y.img + '" alt="' + escHtml(y.name) + '" loading="lazy" onerror="this.outerHTML=\'<div class=card-img-placeholder>' + randEmoji(idx) + '</div>\'">'
     : '<div class="card-img-placeholder">' + randEmoji(idx) + '</div>';
-  card.innerHTML = imgHtml +
+  const isJP = y.country.includes('日本');
+  card.innerHTML =
+    '<div class="card-img-wrap">' + imgHtml +
+      '<button class="heart-btn' + (faved ? ' faved' : '') + '" data-id="' + y.id + '">' + (faved ? '🩷' : '🤍') + '</button>' +
+    '</div>' +
     '<div class="card-body">' +
       '<div class="card-brand">' + escHtml(y.brand) + ' ' + y.country + '</div>' +
       '<div class="card-name">' + escHtml(y.name) + '</div>' +
@@ -827,9 +1029,16 @@ function buildCard(y, idx) {
     '</div>' +
     '<div class="card-footer">' +
       '<span class="stars">' + stars + '</span>' +
-      '<a class="ravelry-link" href="' + y.url + '" target="_blank" rel="noopener">' + (y.country.includes('日本') ? '公式サイト ↗' : 'Ravelry ↗') + '</a>' +
+      '<a class="ravelry-link" href="' + y.url + '" target="_blank" rel="noopener">' + (isJP ? '公式サイト ↗' : 'Ravelry ↗') + '</a>' +
     '</div>';
-  card.onclick = function(e) { if (!e.target.classList.contains('ravelry-link')) openModal(y); };
+  card.querySelector('.heart-btn').onclick = function(e) {
+    e.stopPropagation();
+    toggleFav(y.id);
+  };
+  card.onclick = function(e) {
+    if (!e.target.classList.contains('ravelry-link') && !e.target.classList.contains('heart-btn'))
+      openModal(y);
+  };
   return card;
 }
 
@@ -837,13 +1046,18 @@ function buildCard(y, idx) {
 function openModal(y) {
   const box = document.getElementById('modalBox');
   const fibers = y.fibers.map(function(f){ return f.name + ' ' + f.pct + '%'; });
+  const faved = isFav(y.id);
+  const isJP = y.country.includes('日本');
   const imgHtml = y.img
     ? '<img class="modal-img" src="' + y.img + '" alt="' + escHtml(y.name) + '" onerror="this.outerHTML=\'<div class=modal-img-placeholder>🧶</div>\'">'
     : '<div class="modal-img-placeholder">🧶</div>';
   box.innerHTML = imgHtml +
     '<div class="modal-content">' +
       '<div class="modal-brand">' + escHtml(y.brand) + ' · ' + y.country + '</div>' +
-      '<div class="modal-title">' + escHtml(y.name) + '</div>' +
+      '<div class="modal-title-row">' +
+        '<div class="modal-title">' + escHtml(y.name) + '</div>' +
+        '<button class="modal-heart' + (faved ? ' faved' : '') + '" data-id="' + y.id + '" onclick="toggleFav(' + y.id + ');this.textContent=isFav(' + y.id + ')?\'🩷\':\'🤍\';this.classList.toggle(\'faved\',isFav(' + y.id + '))">' + (faved ? '🩷' : '🤍') + '</button>' +
+      '</div>' +
       '<div class="modal-tags">' +
         '<span class="tag tag-weight">' + escHtml(y.weight) + '</span>' +
         fibers.map(function(f){ return '<span class="tag tag-fiber">' + escHtml(f) + '</span>'; }).join('') +
@@ -857,7 +1071,7 @@ function openModal(y) {
       '</div>' +
       '<div class="modal-notes">' + escHtml(y.desc) + '</div>' +
       '<div class="modal-actions">' +
-        '<a class="btn-ravelry" href="' + y.url + '" target="_blank" rel="noopener">' + (y.country.includes('日本') ? '🇯🇵 公式サイトを見る ↗' : 'Ravelryで見る ↗') + '</a>' +
+        '<a class="btn-ravelry" href="' + y.url + '" target="_blank" rel="noopener">' + (isJP ? '🇯🇵 公式サイトを見る ↗' : 'Ravelryで見る ↗') + '</a>' +
         '<button class="btn-close" onclick="closeModal()">閉じる</button>' +
       '</div>' +
     '</div>';
@@ -870,20 +1084,18 @@ function closeModal() {
 }
 
 // ── HELPERS ──
-function ratingStars(r) {
-  var n = Math.round(r);
-  return '★'.repeat(n) + '☆'.repeat(5 - n);
-}
-function randEmoji(i) { return EMOJIS[i % EMOJIS.length]; }
+function ratingStars(r) { var n=Math.round(r); return '★'.repeat(n)+'☆'.repeat(5-n); }
+function randEmoji(i) { return EMOJIS[i%EMOJIS.length]; }
 function escHtml(s) {
-  if (!s) return '';
+  if(!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ── BOOT ──
 document.addEventListener('DOMContentLoaded', function() {
-  document.querySelector('.chip[data-q="wool"]').classList.add('active');
-  showYarns('wool', 1);
+  document.querySelector('.chip[data-type="material"][data-q="all"]').classList.add('active');
+  updateFavCount();
+  showYarns(1, false);
 });
 </script>
 </body>
