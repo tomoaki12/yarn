@@ -185,11 +185,13 @@
     #apiUser, #apiPass {
       flex: 1; min-width: 130px;
       padding: 8px 14px;
-      border: 2px solid var(--pink);
+      border: 2px solid var(--rose);
       border-radius: 50px;
       font-family: 'Zen Maru Gothic', sans-serif;
       font-size: .88rem; font-weight: 700; outline: none;
       background: #fff;
+      display: block;
+      color: var(--text);
     }
     #saveKeyBtn {
       background: linear-gradient(135deg, var(--mint), #5fba9a);
@@ -436,9 +438,9 @@
       でアプリを作成し、<em>Basic Auth（read-only）</em>を選択してください。
     </p>
     <div class="key-row">
-      <input id="apiUser" type="text"     placeholder="APIユーザー名" />
-      <input id="apiPass" type="password" placeholder="APIパスワード" />
-      <button id="saveKeyBtn">保存して検索 ✓</button>
+      <input id="apiUser" type="text" placeholder="🔑 APIユーザー名" autocomplete="off" />
+      <input id="apiPass" type="password" placeholder="🔒 APIパスワード" autocomplete="off" />
+      <button id="saveKeyBtn">保存して検索 🌸</button>
     </div>
     <p id="keyStatus"></p>
     <p style="font-size:.8rem; color:#aaa; margin-top:6px;">
@@ -828,12 +830,11 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 //  BOOT
 // ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // activate first chip
   document.querySelector('.chip[data-q="wool"]').classList.add('active');
-  loadYarns('wool', 1);
   if (apiUser && apiPass) {
     document.getElementById('apiKeyBox').style.display = 'none';
   }
+  loadYarns('wool', 1);
 });
 </script>
 </body>
