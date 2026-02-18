@@ -75,6 +75,12 @@
       position: relative; z-index: 1;
       letter-spacing: .5px;
     }
+    .notice {
+      color: #bba0bb;
+      font-size: .75rem;
+      margin-top: 6px;
+      position: relative; z-index: 1;
+    }
     .yarn-deco {
       position: absolute; z-index: 0;
       font-size: 2rem;
@@ -363,6 +369,15 @@
       cursor: pointer; text-align: center; text-decoration: none; transition: opacity .2s;
     }
     .btn-ravelry:hover { opacity: .85; }
+    .btn-search {
+      display: inline-block;
+      background: linear-gradient(135deg, #a8e6cf, #7dd4b4);
+      color: #fff; text-decoration: none;
+      padding: 10px 20px; border-radius: 50px;
+      font-weight: 700; font-size: .9rem;
+      transition: opacity .18s;
+    }
+    .btn-search:hover { opacity: .85; }
     .btn-close {
       background: #f5eef8; color: var(--soft); border: none;
       border-radius: 14px; padding: 12px 18px;
@@ -476,6 +491,7 @@
   <div class="yarn-deco">🪡</div>
   <h1 class="logo">🎀 もこもこ<span>ヤーン</span></h1>
   <p class="tagline">世界中の毛糸をあつめたよ 🧶🌸</p>
+  <p class="notice">※ 詳細のリンク先が表示されない場合があります</p>
 </header>
 
 <!-- SEARCH -->
@@ -1039,7 +1055,7 @@ function buildCard(y, idx) {
     '</div>' +
     '<div class="card-footer">' +
       '<span class="stars">' + stars + '</span>' +
-      '<a class="ravelry-link" href="' + y.url + '" target="_blank" rel="noopener">' + (isJP ? '公式サイト ↗' : 'Ravelry ↗') + '</a>' +
+      '<a class="ravelry-link" href="https://www.google.com/search?q=' + encodeURIComponent(y.name + ' ' + y.brand + ' 毛糸') + '" target="_blank" rel="noopener">🔍 検索 ↗</a>' +
     '</div>';
   card.querySelector('.heart-btn').onclick = function(e) {
     e.stopPropagation();
@@ -1081,7 +1097,7 @@ function openModal(y) {
       '</div>' +
       '<div class="modal-notes">' + escHtml(y.desc) + '</div>' +
       '<div class="modal-actions">' +
-        '<a class="btn-ravelry" href="' + y.url + '" target="_blank" rel="noopener">' + (isJP ? '🇯🇵 公式サイトを見る ↗' : 'Ravelryで見る ↗') + '</a>' +
+        '<a class="btn-search" href="https://www.google.com/search?q=' + encodeURIComponent(y.name + ' ' + y.brand + ' 毛糸') + '" target="_blank" rel="noopener">🔍 検索する ↗</a>' +
         '<button class="btn-close" onclick="closeModal()">閉じる</button>' +
       '</div>' +
     '</div>';
