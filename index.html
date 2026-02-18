@@ -431,7 +431,7 @@
   <!-- API Key Box -->
     <p id="keyStatus"></p>
     <p style="font-size:.8rem; color:#aaa; margin-top:6px;">
-      ※ 日本の糸を探したいときは、検索バーに「日本」と入れてみてください。
+      ※ キーはお使いのブラウザのローカルストレージにのみ保存されます。サーバーには送信されません。
     </p>
   </div>
   <div id="statusBar"></div>
@@ -583,7 +583,7 @@ const YARNS = [
     weight:'Aran', grams:50, yardage:100, rating:4.4, washable:false,
     fibers:[{name:'シルク',pct:45},{name:'キッドモヘア',pct:45},{name:'ラムウール',pct:10}], tags:['silk'],
     img:'https://images.ravelrycache.com/uploads/Noro/15990/silk_garden_medium2.jpg',
-    url:'https://www.ravelry.com/yarns/library/noro-silk-garden',
+    url:'https://www.eisaku-noro.com/products/silk-garden/',
     desc:'日本発の手染め風グラデーション糸。シルク混で個性的な編み地に。' },
   { id:22, name:'Lang Yarns Cashmere Premium', brand:'Lang Yarns', country:'🇨🇭 スイス',
     weight:'Fingering', grams:25, yardage:125, rating:4.8, washable:false,
@@ -619,7 +619,7 @@ const YARNS = [
     weight:'DK', grams:100, yardage:200, rating:4.3, washable:true,
     fibers:[{name:'コットン',pct:50},{name:'シルク',pct:17},{name:'ウール',pct:17}], tags:['silk','cotton','wool'],
     img:'https://images.ravelrycache.com/uploads/Noro/15991/noro_taiyo_medium2.jpg',
-    url:'https://www.ravelry.com/yarns/library/noro-taiyo',
+    url:'https://www.eisaku-noro.com/products/taiyo/',
     desc:'野呂英作によるグラデーション混紡糸。太陽のような鮮やかな色変わりが魅力。' },
   { id:28, name:'Scheepjes Stonewashed', brand:'Scheepjes', country:'🇳🇱 オランダ',
     weight:'DK', grams:50, yardage:130, rating:4.7, washable:true,
@@ -655,61 +655,61 @@ const YARNS = [
     weight:'Lace', grams:40, yardage:480, rating:4.6, washable:false,
     fibers:[{name:'シルク',pct:100}], tags:['silk'],
     img:'https://images.ravelrycache.com/uploads/Habu-Textiles/9696/habu_tsumugi_medium2.jpg',
-    url:'https://www.ravelry.com/yarns/library/habu-textiles-a-1-tsumugi-silk',
+    url:'https://www.habutextiles.com/',
     desc:'日本伝統の紬シルク。素朴な光沢と独特の質感が魅力のシルク糸。' },
   { id:37, name:'Noro Kureyon', brand:'Noro', country:'🇯🇵 日本',
     weight:'Worsted', grams:50, yardage:100, rating:4.5, washable:false,
     fibers:[{name:'ウール',pct:100}], tags:['wool'],
     img:'https://images.ravelrycache.com/uploads/Noro/15985/kureyon_medium2.jpg',
-    url:'https://www.ravelry.com/yarns/library/noro-kureyon',
+    url:'https://www.eisaku-noro.com/products/kureyon/',
     desc:'野呂英作の代表作。単色に見えて編むと生まれるグラデーションが世界中で愛される。' },
   { id:38, name:'Noro Ito', brand:'Noro', country:'🇯🇵 日本',
     weight:'Fingering', grams:100, yardage:400, rating:4.6, washable:false,
     fibers:[{name:'ウール',pct:70},{name:'シルク',pct:30}], tags:['wool','silk'],
     img:'https://images.ravelrycache.com/uploads/Noro/188065/noro_ito_medium2.jpg',
-    url:'https://www.ravelry.com/yarns/library/noro-ito',
+    url:'https://www.eisaku-noro.com/products/ito/',
     desc:'ウール＋シルクの細番手グラデーション糸。繊細な編み地が楽しめる上品な一糸。' },
   { id:39, name:'Noro Chirimen', brand:'Noro', country:'🇯🇵 日本',
     weight:'DK', grams:50, yardage:120, rating:4.4, washable:false,
     fibers:[{name:'シルク',pct:60},{name:'ウール',pct:40}], tags:['silk','wool'],
     img:'https://images.ravelrycache.com/uploads/Noro/207894/chirimen_medium2.jpg',
-    url:'https://www.ravelry.com/yarns/library/noro-chirimen',
+    url:'https://www.eisaku-noro.com/products/chirimen/',
     desc:'ちりめん調の凹凸感が独特。シルク60%でとろんとした光沢が美しいNoro糸。' },
   { id:40, name:'Ski Yarn Merino Soft', brand:'Ski Yarn（スキー毛糸）', country:'🇯🇵 日本',
     weight:'DK', grams:40, yardage:96, rating:4.5, washable:true,
     fibers:[{name:'メリノウール',pct:100}], tags:['merino','wool'],
     img:'https://images.ravelrycache.com/uploads/Ski/9771/skimerino_medium2.jpg',
-    url:'https://www.ravelry.com/yarns/library/ski-merino-soft',
+    url:'https://www.skiyarn.co.jp/',
     desc:'日本のスキー毛糸のメリノ糸。国内編み物愛好家に長年愛される定番ブランド。' },
   { id:41, name:'Daruma Wool Mousse', brand:'Daruma（ダルマ）', country:'🇯🇵 日本',
     weight:'Bulky', grams:40, yardage:56, rating:4.6, washable:false,
     fibers:[{name:'ウール',pct:100}], tags:['wool'],
     img:'https://images.ravelrycache.com/uploads/Daruma/207277/daruma_wool_mousse_medium2.jpg',
-    url:'https://www.ravelry.com/yarns/library/daruma-wool-mousse',
+    url:'https://www.daruma-ito.co.jp/products/wool-mousse/',
     desc:'ふわふわ感が特徴の日本発ダルマ糸。もこもこした質感でスヌードやマフラーに人気。' },
   { id:42, name:'Daruma Ito Goma', brand:'Daruma（ダルマ）', country:'🇯🇵 日本',
     weight:'Fingering', grams:20, yardage:70, rating:4.4, washable:false,
     fibers:[{name:'ウール',pct:65},{name:'シルク',pct:35}], tags:['wool','silk'],
     img:'https://images.ravelrycache.com/uploads/Daruma/193567/itogoma_medium2.jpg',
-    url:'https://www.ravelry.com/yarns/library/daruma-ito-goma',
+    url:'https://www.daruma-ito.co.jp/',
     desc:'ゴマの名前を持つウール＋シルク混紡。繊細な光沢と柔らかさが特徴の日本糸。' },
   { id:43, name:'Rich More Percent', brand:'Rich More（リッチモア）', country:'🇯🇵 日本',
     weight:'Fingering', grams:40, yardage:160, rating:4.5, washable:true,
     fibers:[{name:'スーパーウォッシュウール',pct:100}], tags:['wool','merino'],
     img:'https://images.ravelrycache.com/uploads/Rich-More/9833/richmore_percent_medium2.jpg',
-    url:'https://www.ravelry.com/yarns/library/rich-more-percent',
+    url:'https://www.richmore.jp/',
     desc:'日本リッチモアの靴下糸定番。豊富なカラー展開と耐久性で編み物ファンに大人気。' },
   { id:44, name:'Habu Textiles Wool Crepe', brand:'Habu Textiles', country:'🇯🇵 日本',
     weight:'Lace', grams:100, yardage:340, rating:4.5, washable:false,
     fibers:[{name:'ウール',pct:100}], tags:['wool'],
     img:'https://images.ravelrycache.com/uploads/Habu-Textiles/9695/habu_wool_medium2.jpg',
-    url:'https://www.ravelry.com/yarns/library/habu-textiles-a-19-wool-crepe',
+    url:'https://www.habutextiles.com/',
     desc:'クレープ加工の細番手ウール。日本の職人技が光る独特の風合いが海外でも高評価。' },
   { id:45, name:'Yokota Daruma Airy Wool Alpaca', brand:'Daruma（ダルマ）', country:'🇯🇵 日本',
     weight:'Worsted', grams:30, yardage:70, rating:4.7, washable:false,
     fibers:[{name:'ウール',pct:60},{name:'アルパカ',pct:40}], tags:['wool','alpaca'],
     img:'https://images.ravelrycache.com/uploads/Daruma/264089/daruma_airy_wool_alpaca_medium2.jpg',
-    url:'https://www.ravelry.com/yarns/library/daruma-airy-wool-alpaca',
+    url:'https://www.daruma-ito.co.jp/products/airy-wool-alpaca/',
     desc:'ダルマのウール＋アルパカ。軽くてふわっとした空気感が気持ちいい冬の人気糸。' },
   { id:34, name:'Cascade Alpaca Lace', brand:'Cascade Yarns', country:'🇺🇸 アメリカ',
     weight:'Lace', grams:50, yardage:437, rating:4.5, washable:false,
@@ -827,7 +827,7 @@ function buildCard(y, idx) {
     '</div>' +
     '<div class="card-footer">' +
       '<span class="stars">' + stars + '</span>' +
-      '<a class="ravelry-link" href="' + y.url + '" target="_blank" rel="noopener">Ravelry ↗</a>' +
+      '<a class="ravelry-link" href="' + y.url + '" target="_blank" rel="noopener">' + (y.country.includes('日本') ? '公式サイト ↗' : 'Ravelry ↗') + '</a>' +
     '</div>';
   card.onclick = function(e) { if (!e.target.classList.contains('ravelry-link')) openModal(y); };
   return card;
@@ -857,7 +857,7 @@ function openModal(y) {
       '</div>' +
       '<div class="modal-notes">' + escHtml(y.desc) + '</div>' +
       '<div class="modal-actions">' +
-        '<a class="btn-ravelry" href="' + y.url + '" target="_blank" rel="noopener">Ravelryで見る ↗</a>' +
+        '<a class="btn-ravelry" href="' + y.url + '" target="_blank" rel="noopener">' + (y.country.includes('日本') ? '🇯🇵 公式サイトを見る ↗' : 'Ravelryで見る ↗') + '</a>' +
         '<button class="btn-close" onclick="closeModal()">閉じる</button>' +
       '</div>' +
     '</div>';
